@@ -5,6 +5,10 @@
 #include "ir.h"
 #include "../remote-software/sources/entities/entity.h"
 
+IR::IR()
+{
+}
+
 void IR::initialize(int integrationId, const QVariantMap& config, QObject* entities, QObject* notifications, QObject* api, QObject* configObj)
 {
     setIntegrationId(integrationId);
@@ -22,16 +26,20 @@ void IR::initialize(int integrationId, const QVariantMap& config, QObject* entit
     m_config = qobject_cast<ConfigInterface *>(configObj);
 }
 
-void HomeAssistant::connect()
+void IR::connect()
 {
     setState(CONNECTING);
 }
 
-void HomeAssistant::disconnect()
+void IR::disconnect()
 {
     setState(DISCONNECTED);
 }
 
-void HomeAssistant::sendCommand(const QString& type, const QString& entity_id, const QString& command, const QVariant& param)
+void IR::sendCommand(const QString& type, const QString& entity_id, const QString& command, const QVariant& param)
+{
+}
+
+void IR::updateEntity(const QString& entity_id, const QVariantMap& attr)
 {
 }
