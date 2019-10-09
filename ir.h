@@ -29,6 +29,7 @@ public slots:
 
 private:
     void updateEntity               (const QString& entity_id, const QVariantMap& attr) override;
+    QString findIRCode              (const QString& feature, QVariantList& list);
 
     EntitiesInterface*              m_entities;
     NotificationsInterface*         m_notifications;
