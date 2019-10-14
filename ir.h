@@ -8,27 +8,44 @@
 #include "../remote-software/sources/integrations/integration.h"
 #include "../remote-software/sources/integrations/integrationinterface.h"
 
-class IR : public Integration, IntegrationInterface
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// IR FACTORY
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class IR : public QObject, IntegrationInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "YIO.IntegrationInterface" FILE "ir.json")
     Q_INTERFACES(IntegrationInterface)
 
 public:
-    explicit IR();
+    explicit IR() {}
 
-    Q_INVOKABLE void initialize	    (int integrationId, const QVariantMap& config, QObject *entities, QObject *notifications, QObject* api, QObject *configObj) override;
-    Q_INVOKABLE void connect	      () override;
-    Q_INVOKABLE void disconnect	    () override;
+    QMap<QObject *, QVariant> create          (const QVariantMap& config, QObject *entities, QObject *notifications, QObject* api, QObject *configObj) override;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// IR BASE CLASS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class IRBase : public Integration
+{
+    Q_OBJECT
+
+public:
+    explicit IRBase();
+
+    Q_INVOKABLE void setup   	    (const QVariantMap& config, QObject *entities, QObject *notifications, QObject* api, QObject *configObj);
+    Q_INVOKABLE void connect	    ();
+    Q_INVOKABLE void disconnect	    ();
 
 signals:
     void notify();
 
 public slots:
-     void sendCommand               (const QString& type, const QString& id, const QString& command, const QVariant& param) override;
+     void sendCommand               (const QString& type, const QString& id, const QString& command, const QVariant& param);
 
 private:
-    void updateEntity               (const QString& entity_id, const QVariantMap& attr) override;
+    void updateEntity               (const QString& entity_id, const QVariantMap& attr);
     QString findIRCode              (const QString& feature, QVariantList& list);
 
     EntitiesInterface*              m_entities;

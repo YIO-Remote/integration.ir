@@ -6,19 +6,49 @@
 #include "../remote-software/sources/entities/entity.h"
 #include "../remote-software/sources/entities/remote.h"
 
-IR::IR()
+QMap<QObject *, QVariant> IR::create(const QVariantMap &config, QObject *entities, QObject *notifications, QObject *api, QObject *configObj)
+{
+    QMap<QObject *, QVariant> returnData;
+
+    QVariantList data;
+    QString mdns;
+
+    for (QVariantMap::const_iterator iter = config.begin(); iter != config.end(); ++iter) {
+        if (iter.key() == "mdns") {
+            mdns = iter.value().toString();
+        } else if (iter.key() == "data") {
+            data = iter.value().toList();
+        }
+    }
+
+    for (int i=0; i<data.length(); i++)
+    {
+        IRBase* ir = new IRBase();
+        ir->setup(data[i].toMap(), entities, notifications, api, configObj);
+
+        QVariantMap d = data[i].toMap();
+        d.insert("mdns", mdns);
+        returnData.insert(ir, d);
+    }
+
+    return returnData;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// IR BASE CLASS
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+IRBase::IRBase()
 {
 }
 
-void IR::initialize(int integrationId, const QVariantMap& config, QObject* entities, QObject* notifications, QObject* api, QObject* configObj)
+void IRBase::setup(const QVariantMap& config, QObject* entities, QObject* notifications, QObject* api, QObject* configObj)
 {
-    setIntegrationId(integrationId);
-
     for (QVariantMap::const_iterator iter = config.begin(); iter != config.end(); ++iter) {
-        if (iter.key() == "type")
-            setType(iter.value().toString());
-        else if (iter.key() == "friendly_name")
+        if (iter.key() == "friendly_name")
             setFriendlyName(iter.value().toString());
+        else if (iter.key() == "id")
+            setIntegrationId(iter.value().toString());
     }
     
     m_entities = qobject_cast<EntitiesInterface *>(entities);
@@ -29,17 +59,17 @@ void IR::initialize(int integrationId, const QVariantMap& config, QObject* entit
     connect();
 }
 
-void IR::connect()
+void IRBase::connect()
 {
     setState(CONNECTED);
 }
 
-void IR::disconnect()
+void IRBase::disconnect()
 {
     setState(DISCONNECTED);
 }
 
-void IR::sendCommand(const QString& type, const QString& entity_id, const QString& command, const QVariant& param)
+void IRBase::sendCommand(const QString& type, const QString& entity_id, const QString& command, const QVariant& param)
 {
     if (type == "remote") {
          Remote* entity = (Remote*)m_entities->get(entity_id);
@@ -60,12 +90,12 @@ void IR::sendCommand(const QString& type, const QString& entity_id, const QStrin
     }
 }
 
-void IR::updateEntity(const QString& entity_id, const QVariantMap& attr)
+void IRBase::updateEntity(const QString& entity_id, const QVariantMap& attr)
 {
     // not used for IR entites. IR entities are not updated
 }
 
-QString IR::findIRCode(const QString &feature, QVariantList& list)
+QString IRBase::findIRCode(const QString &feature, QVariantList& list)
 {
     QString r = "";
 
