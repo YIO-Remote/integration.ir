@@ -72,14 +72,15 @@ void IRBase::disconnect()
 void IRBase::sendCommand(const QString& type, const QString& entity_id, const QString& command, const QVariant& param)
 {
     if (type == "remote") {
+
          Remote* entity = (Remote*)m_entities->get(entity_id);
          QVariantList commands = entity->commands();
-         QString command = findIRCode(command, commands);
+         QString IRcommand = findIRCode(command, commands);
 
          QVariantMap msg;
          msg.insert("type", QVariant("dock"));
          msg.insert("command", QVariant("ir_send"));
-         msg.insert("code", command);
+         msg.insert("code", IRcommand);
          QJsonDocument doc = QJsonDocument::fromVariant(msg);
          QString message = doc.toJson(QJsonDocument::JsonFormat::Compact);
 
@@ -97,6 +98,9 @@ void IRBase::updateEntity(const QString& entity_id, const QVariantMap& attr)
 
 QString IRBase::findIRCode(const QString &feature, QVariantList& list)
 {
+
+//    qDebug() << feature;
+
     QString r = "";
 
     for (int i = 0; i < list.length(); i++) {
