@@ -10,26 +10,13 @@ QMap<QObject *, QVariant> IR::create(const QVariantMap &config, QObject *entitie
 {
     QMap<QObject *, QVariant> returnData;
 
-    QVariantList data;
-    QString mdns;
+    IRBase* ir = new IRBase();
+    ir->setup(QVariantMap(), entities, notifications, api, configObj);
 
-    for (QVariantMap::const_iterator iter = config.begin(); iter != config.end(); ++iter) {
-        if (iter.key() == "mdns") {
-            mdns = iter.value().toString();
-        } else if (iter.key() == "data") {
-            data = iter.value().toList();
-        }
-    }
-
-    for (int i=0; i<data.length(); i++)
-    {
-        IRBase* ir = new IRBase();
-        ir->setup(data[i].toMap(), entities, notifications, api, configObj);
-
-        QVariantMap d = data[i].toMap();
-        d.insert("mdns", mdns);
-        returnData.insert(ir, d);
-    }
+    QVariantMap d ;
+    d.insert("id", "ir");
+    d.insert("friendly_name", "IR");
+    returnData.insert(ir, d);
 
     return returnData;
 }
@@ -44,13 +31,9 @@ IRBase::IRBase()
 
 void IRBase::setup(const QVariantMap& config, QObject* entities, QObject* notifications, QObject* api, QObject* configObj)
 {
-    for (QVariantMap::const_iterator iter = config.begin(); iter != config.end(); ++iter) {
-        if (iter.key() == "friendly_name")
-            setFriendlyName(iter.value().toString());
-        else if (iter.key() == "id")
-            setIntegrationId(iter.value().toString());
-    }
-    
+    setFriendlyName("IR");
+    setIntegrationId("ir");
+
     m_entities = qobject_cast<EntitiesInterface *>(entities);
     m_notifications = qobject_cast<NotificationsInterface *>(notifications);
     m_api = qobject_cast<YioAPIInterface *>(api);
@@ -73,16 +56,16 @@ void IRBase::sendCommand(const QString& type, const QString& entity_id, const QS
 {
     if (type == "remote") {
 
-         Remote* entity = (Remote*)m_entities->get(entity_id);
-         QVariantList commands = entity->commands();
-         QString IRcommand = findIRCode(command, commands);
+        Remote* entity = (Remote*)m_entities->get(entity_id);
+        QVariantList commands = entity->commands();
+        QString IRcommand = findIRCode(command, commands);
 
-         QVariantMap msg;
-         msg.insert("type", QVariant("dock"));
-         msg.insert("command", QVariant("ir_send"));
-         msg.insert("code", IRcommand);
-         QJsonDocument doc = QJsonDocument::fromVariant(msg);
-         QString message = doc.toJson(QJsonDocument::JsonFormat::Compact);
+        QVariantMap msg;
+        msg.insert("type", QVariant("dock"));
+        msg.insert("command", QVariant("ir_send"));
+        msg.insert("code", IRcommand);
+        QJsonDocument doc = QJsonDocument::fromVariant(msg);
+        QString message = doc.toJson(QJsonDocument::JsonFormat::Compact);
 
         if (command != "") {
             // send the message through the websocket api
@@ -98,9 +81,6 @@ void IRBase::updateEntity(const QString& entity_id, const QVariantMap& attr)
 
 QString IRBase::findIRCode(const QString &feature, QVariantList& list)
 {
-
-//    qDebug() << feature;
-
     QString r = "";
 
     for (int i = 0; i < list.length(); i++) {
