@@ -11,7 +11,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //// IR FACTORY
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class IR : public QObject, IntegrationInterface
+class IR : public IntegrationInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "YIO.IntegrationInterface" FILE "ir.json")
@@ -20,7 +20,7 @@ class IR : public QObject, IntegrationInterface
 public:
     explicit IR() {}
 
-    QMap<QObject *, QVariant> create          (const QVariantMap& config, QObject *entities, QObject *notifications, QObject* api, QObject *configObj) override;
+    void create          (const QVariantMap& config, QObject *entities, QObject *notifications, QObject* api, QObject *configObj) override;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

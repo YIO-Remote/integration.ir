@@ -6,7 +6,7 @@
 #include "../remote-software/sources/entities/entity.h"
 #include "../remote-software/sources/entities/remote.h"
 
-QMap<QObject *, QVariant> IR::create(const QVariantMap &config, QObject *entities, QObject *notifications, QObject *api, QObject *configObj)
+void IR::create(const QVariantMap &config, QObject *entities, QObject *notifications, QObject *api, QObject *configObj)
 {
     QMap<QObject *, QVariant> returnData;
 
@@ -18,7 +18,7 @@ QMap<QObject *, QVariant> IR::create(const QVariantMap &config, QObject *entitie
     d.insert("friendly_name", "IR");
     returnData.insert(ir, d);
 
-    return returnData;
+    emit createDone(returnData);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
