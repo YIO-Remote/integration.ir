@@ -16,6 +16,7 @@ void IR::create(const QVariantMap &config, QObject *entities, QObject *notificat
     QVariantMap d ;
     d.insert("id", "ir");
     d.insert("friendly_name", "IR");
+    d.insert("type", config.value("type").toString());
     returnData.insert(ir, d);
 
     emit createDone(returnData);
